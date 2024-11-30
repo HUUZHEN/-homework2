@@ -6,14 +6,16 @@ using namespace std;
 
 class tern {
     friend class polynomial;
-private:
+public:
     float coef; // 係數
     int exp;    // 指數
-public:
     tern(float c = 0, int e = 0) : coef(c), exp(e) {}
 };
 
 class polynomial {
+    friend ostream& operator<<(ostream& os, const polynomial& p);
+    friend istream& operator>>(istream& is, polynomial& p);
+
 private:
     tern* termArray; // 儲存項目的動態陣列
     int terms;       // 已使用的項目數量
@@ -23,6 +25,7 @@ public:
     polynomial(int initialCapacity = 5) : terms(0), capacity(initialCapacity) {
         termArray = new tern[capacity];
     }
+
     ~polynomial() {
         delete[] termArray; // 釋放動態陣列
     }
@@ -44,20 +47,6 @@ public:
         }
         termArray[terms].coef = newCoef;
         termArray[terms++].exp = newExp;
-    }
-
-    // 輸入多項式
-    void input() {
-        int n;
-        cout << "輸入多項式的項數: ";
-        cin >> n;
-        for (int i = 0; i < n; ++i) {
-            float coef;
-            int exp;
-            cout << "輸入第 " << i + 1 << " 項的係數與指數: ";
-            cin >> coef >> exp;
-            NewTerm(coef, exp);
-        }
     }
 
     // 多項式相加
@@ -94,46 +83,55 @@ public:
         }
         return result;
     }
-
-    // 輸出多項式
-    void display() const {
-        if (terms == 0) {
-            cout << "0";
-            return;
-        }
-        for (int i = 0; i < terms; ++i) {
-            if (i > 0 && termArray[i].coef > 0) cout << " + ";
-            if (termArray[i].exp == 0) {
-                cout << termArray[i].coef;
-            }
-            else {
-                cout << termArray[i].coef << "x^" << termArray[i].exp;
-            }
-        }
-        cout << endl;
-    }
 };
+
+istream& operator>>(istream& is, polynomial& p) {
+    int n;
+    cout << "輸入多項式的項數: ";
+    is >> n;
+    for (int i = 0; i < n; ++i) {
+        float coef;
+        int exp;
+        cout << "輸入第 " << i + 1 << " 項的係數與指數: ";
+        is >> coef >> exp;
+        p.NewTerm(coef, exp);
+    }
+    return is;
+}
+
+ostream& operator<<(ostream& os, const polynomial& p) {
+    if (p.terms == 0) {
+        os << "0";
+        return os;
+    }
+    for (int i = 0; i < p.terms; ++i) {
+        if (i > 0 && p.termArray[i].coef > 0) os << " + ";
+        if (p.termArray[i].exp == 0) {
+            os << p.termArray[i].coef;
+        }
+        else {
+            os << p.termArray[i].coef << "x^" << p.termArray[i].exp;
+        }
+    }
+    return os;
+}
 
 int main() {
     polynomial poly1, poly2;
 
     cout << "輸入第一個多項式:" << endl;
-    poly1.input();
+    cin >> poly1;
     cout << "輸入第二個多項式:" << endl;
-    poly2.input();
+    cin >> poly2;
 
-    cout << "第一個多項式為: ";
-    poly1.display();
-    cout << "第二個多項式為: ";
-    poly2.display();
+    cout << "第一個多項式為: " << poly1 << endl;
+    cout << "第二個多項式為: " << poly2 << endl;
 
     polynomial sum = poly1.add(poly2);
     polynomial product = poly1.mult(poly2);
 
-    cout << "多項式相加結果: ";
-    sum.display();
-    cout << "多項式相乘結果: ";
-    product.display();
+    cout << "多項式相加結果: " << sum << endl;
+    cout << "多項式相乘結果: " << product << endl;
 
     float x;
     cout << "請輸入 x 的值以求解第一個多項式: ";
